@@ -193,6 +193,17 @@ describe('Sender', function () {
       sender.processing = false;
       sender.send('hi', { compress: false, fin: true });
     });
+
+    it('returns false if outgoing socket buffer (Send-Q) is full', function (done) {
+      const sender = new Sender({
+        write: () => {
+          return false;
+        }
+      });
+      const result = sender.send('hi', { compress: false, fin: true });
+      assert.strictEqual(result, false);
+      done();
+    });
   });
 
   describe('#ping', function () {

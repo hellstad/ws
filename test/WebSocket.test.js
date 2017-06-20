@@ -2,6 +2,7 @@
 
 'use strict';
 
+const net = require('net');
 const safeBuffer = require('safe-buffer');
 const assert = require('assert');
 const crypto = require('crypto');
@@ -330,6 +331,16 @@ describe('WebSocket', function () {
           assert.strictEqual(headers, res.headers);
           wss.close(done);
         });
+      });
+    });
+
+    it('emits a drain event when there is backpressure from the socket', function (done) {
+      const wss = new WebSocketServer({ port: ++port }, () => {
+        const ws = new WebSocket(`ws://localhost:${port}`);
+        const socket = new net.Socket();
+        ws.on('drain', () => wss.close(done));
+        ws.setSocket(socket);
+        socket.emit('drain');
       });
     });
   });
